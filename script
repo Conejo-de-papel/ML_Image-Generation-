@@ -1,0 +1,66 @@
+import os
+import io
+import requests
+import base64
+import json
+from PIL import Image
+import gradio as gr
+from dotenv import load_dotenv
+
+# Upload API-key from .env file
+load_dotenv()
+hf_api_key = os.getenv("HF_API_KEY")  # API ключ от Hugging Face
+hf_endpoint = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"  # Пример модели
+
+# function for base64 convertion into PIL Image
+def base64_to_pil(img_base64):
+    base64_decoded = base64.b64decode(img_base64)
+    byte_stream = io.BytesIO(base64_decoded)
+    pil_image = Image.open(byte_stream)
+    return pil_image
+
+# Hugging Face API request
+def generate(prompt, negative_prompt="", steps=25, guidance=7.5, width=512, height=512):
+    headers = {
+        "Authorization": f"Bearer {hf_api_key}",
+        "Content-Type": "application/json"
+    }
+
+    # Parameters for API
+    data = {
+        "inputs": prompt,
+        "parameters": {
+            "negative_prompt": negative_prompt,
+            "num_inference_steps": steps,
+            "guidance_scale": guidance,
+            "width": width,
+            "height": height
+        }
+    }
+
+    response = requests.post(hf_endpoint, headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        result = response.json()[0]['generated_image_base64']  # Используйте реальный ключ из ответа
+        return base64_to_pil(result)
+    else:
+        return f"Error: {response.status_code}, {response.text}"
+
+# Gradio Interface
+demo = gr.Interface(
+    fn=generate,
+    inputs=[
+        gr.Textbox(label="Prompt"),
+        gr.Textbox(label="Negative Prompt"),
+        gr.Slider(label="Inference Steps", minimum=1, maximum=100, value=25),
+        gr.Slider(label="Guidance Scale", minimum=1, maximum=20, value=7.5),
+        gr.Slider(label="Width", minimum=64, maximum=1024, step=64, value=512),
+        gr.Slider(label="Height", minimum=64, maximum=1024, step=64, value=512)
+    ],
+    outputs=gr.Image(label="Generated Image"),
+    title="Image Generation with Hugging Face API",
+    description="Generate images using Stable Diffusion on Hugging Face",
+    allow_flagging="never"
+)
+
+demo.launch(share=True)
