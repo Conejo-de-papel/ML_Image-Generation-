@@ -19,16 +19,9 @@ This project allows you to generate images using the **Stable Diffusion** model 
 Follow these steps to set up the project locally:
 
 1. **Clone the repository**:
-   ```bash
-   git clone [https://github.com/your-username/your-repo-name.git](https://github.com/Conejo-de-papel/ML_Image-Generation-)
-   cd your-repo-name
-   ```
 
 2. **Install dependencies**:
    Make sure you have Python 3.8+ installed. Then, install the required libraries:
-   ```bash
-   pip install -r requirements.txt
-   ```
 
 3. **Set up your Hugging Face API key**:
    - Create a `.env` file in the project root directory.
@@ -36,7 +29,6 @@ Follow these steps to set up the project locally:
      ```
      HF_API_KEY=your_hugging_face_api_key_here
      ```
-   - **Note**: Do not share your API key publicly. Add `.env` to your `.gitignore` file to avoid committing it to the repository.
 
 4. **Run the application**:
    ```bash
